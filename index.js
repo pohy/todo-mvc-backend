@@ -2,11 +2,13 @@ const express = require('express')
 const DbStore = require('nedb')
 const cors = require('cors')
 const uuid = require('uuid/v4')
+const path = require('path')
 
 const PORT = process.env.PORT || 3000
 
+const dataDir = path.join(__dirname, 'data')
 const app = express()
-const db = new DbStore({ autoload: true, filename: 'todo' })
+const db = new DbStore({ autoload: true, filename: path.join(dataDir, 'todo.db') })
 
 app.use(cors())
 app.use(express.json())
