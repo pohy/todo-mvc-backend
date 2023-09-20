@@ -6,7 +6,7 @@ const path = require('path')
 
 const PORT = process.env.PORT || 3000
 
-const dataDir = path.join(__dirname, 'data')
+const dataDir = path.join(__dirname, process.env.DATA_DIR ?? 'data')
 const app = express()
 const db = new DbStore({ autoload: true, filename: path.join(dataDir, 'todo.db') })
 
