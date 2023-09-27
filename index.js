@@ -40,12 +40,13 @@ app.get("/:id", (req, res) => {
 
 app.post("/", (req, res) => {
   var id = uuid();
+  const protocol = process.env.REQ_PROTOCOL ?? req.protocol;
   var doc = {
     ...req.body,
     completed: false,
     _id: id,
     id,
-    url: req.protocol + "://" + req.get("host") + "/" + id,
+    url: protocol + "://" + req.get("host") + "/" + id,
   };
   db.insert(doc, (err, doc) => {
     res.send(doc);
