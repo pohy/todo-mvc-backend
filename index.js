@@ -1,68 +1,75 @@
-const express = require('express')
-const DbStore = require('nedb')
-const cors = require('cors')
-const uuid = require('uuid/v4')
-const path = require('path')
+const express = require("express");
+const DbStore = require("nedb");
+const cors = require("cors");
+const uuid = require("uuid/v4");
+const path = require("path");
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
-const dataDir = path.join(__dirname, process.env.DATA_DIR ?? 'data')
-const app = express()
-const db = new DbStore({ autoload: true, filename: path.join(dataDir, 'todo.db') })
+const dataDir = path.join(__dirname, process.env.DATA_DIR ?? "data");
+const app = express();
+const db = new DbStore({
+  autoload: true,
+  filename: path.join(dataDir, "todo.db"),
+});
 
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.options("*", cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 function dbGetAll(res) {
-    db.find({}, (err, doc) => {
-        res.send(doc)
-    })
+  db.find({}, (err, doc) => {
+    res.send(doc);
+  });
 }
 
-function dbGetOne(res, _id){
-    db.findOne({ _id }, (err, doc) => {
-        res.send(doc)
-    })
+function dbGetOne(res, _id) {
+  db.findOne({ _id }, (err, doc) => {
+    res.send(doc);
+  });
 }
 
-app.get('/', (req, res) => {
-    dbGetAll(res)
-})
+app.get("/", (req, res) => {
+  dbGetAll(res);
+});
 
-app.get('/:id', (req, res) => {
-    dbGetOne(res,req.params.id)
-})
+app.get("/:id", (req, res) => {
+  dbGetOne(res, req.params.id);
+});
 
-app.post('/', (req, res) => {
-    var id = uuid();
-    var doc = {
-        ...req.body,
-        completed: false, 
-        _id : id,
-        id,
-        url: req.protocol + '://' + req.get('host') + '/' + id
-    };
-    db.insert(doc, (err, doc) => {
-        res.send(doc)
-    })
-})
+app.post("/", (req, res) => {
+  var id = uuid();
+  var doc = {
+    ...req.body,
+    completed: false,
+    _id: id,
+    id,
+    url: req.protocol + "://" + req.get("host") + "/" + id,
+  };
+  db.insert(doc, (err, doc) => {
+    res.send(doc);
+  });
+});
 
-app.patch('/:id', (req, res) => {
-    db.update({ _id: req.params.id }, { $set: req.body }, {}, (err, number) => {
-        dbGetOne(res,req.params.id)
-    })
-})
+app.patch("/:id", (req, res) => {
+  db.update({ _id: req.params.id }, { $set: req.body }, {}, (err, number) => {
+    dbGetOne(res, req.params.id);
+  });
+});
 
-app.delete('/', (req, res) => {
-    db.remove({}, { multi: true }, (err, n) => {        
-        dbGetAll(res)
-    })
-})
+app.delete("/", (req, res) => {
+  db.remove({}, { multi: true }, (err, n) => {
+    dbGetAll(res);
+  });
+});
 
-app.delete('/:id', (req, res) => {
-    db.remove({ _id: req.params.id }, {}, (err, n) => {
-        dbGetOne(res,req.params.id)
-    })
-})
+app.delete("/:id", (req, res) => {
+  db.remove({ _id: req.params.id }, {}, (err, n) => {
+    dbGetOne(res, req.params.id);
+  });
+});
 
-app.listen(PORT, () => { console.log('Server is running...') })
+app.listen(PORT, () => {
+  console.log("Server is running...");
+});
